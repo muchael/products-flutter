@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:products_flutter/screens/sign_up_form.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -66,7 +67,7 @@ class _LoginState extends State<Login> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(15.0),
+                padding: const EdgeInsets.all(15.0),
                 //padding: EdgeInsets.symmetric(horizontal: 15),
                 child: TextFormField(
                   onChanged: (text) {
@@ -115,7 +116,16 @@ class _LoginState extends State<Login> {
               const SizedBox(
                 height: 130,
               ),
-              const Text('New User? Create Account')
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                      context, MaterialPageRoute(builder: (_) => SignUpForm()));
+                },
+                child: const Text(
+                  'New User? Create Account',
+                  style: TextStyle(color: Colors.black54, fontSize: 16),
+                ),
+              ),
             ],
           ),
         ),
