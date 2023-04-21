@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:brasil_fields/brasil_fields.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:search_cep/search_cep.dart';
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm({super.key});
@@ -14,6 +15,61 @@ class SignUpForm extends StatefulWidget {
 class _SignUpFormState extends State<SignUpForm> {
   final _formKey = GlobalKey<FormState>();
   DateTime date = DateTime.now();
+  final nameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final cpfController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final birthDateController = TextEditingController();
+  final cepController = TextEditingController();
+  final stateController = TextEditingController();
+  final cityController = TextEditingController();
+  final neighborhoodController = TextEditingController();
+  final streetController = TextEditingController();
+  final complementController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Start listening to changes.
+    cepController.addListener(_consultCep);
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is removed from the widget tree.
+    nameController.dispose();
+    lastNameController.dispose();
+    cpfController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    birthDateController.dispose();
+    cepController.dispose();
+    stateController.dispose();
+    cityController.dispose();
+    neighborhoodController.dispose();
+    streetController.dispose();
+    complementController.dispose();
+    super.dispose();
+  }
+
+  void _consultCep() async {
+    final value = cepController.text;
+
+    if (value!.length == 10) {
+      final viaCepSearchCep = ViaCepSearchCep();
+      final infoCepJSON = await viaCepSearchCep.searchInfoByCep(cep: value.replaceAll(new RegExp(r'[^0-9]'),''));
+
+      if (infoCepJSON != null) {
+        var cep = infoCepJSON.getOrElse(() => ViaCepInfo());
+        stateController.text = cep.uf!;
+        cityController.text = cep.localidade!;
+        neighborhoodController.text = cep.bairro!;
+        streetController.text = cep.logradouro!;
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +87,7 @@ class _SignUpFormState extends State<SignUpForm> {
                 children: [
                   ...[
                     TextFormField(
+                      controller: nameController,
                       autofocus: true,
                       textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(
@@ -40,6 +97,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       autofillHints: const [AutofillHints.givenName],
                     ),
                     TextFormField(
+                      controller: lastNameController,
                       textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(
                         hintText: 'Doe',
@@ -48,6 +106,13 @@ class _SignUpFormState extends State<SignUpForm> {
                       autofillHints: const [AutofillHints.familyName],
                     ),
                     TextFormField(
+                      controller: cpfController,
+                      validator: (value) {
+                        if (!UtilBrasilFields.isCPFValido(value)) {
+                          return 'Insira um CPF válido';
+                        }
+                        return null;
+                      },
                       keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(
@@ -59,20 +124,22 @@ class _SignUpFormState extends State<SignUpForm> {
                         CpfInputFormatter(),
                       ],
                     ),
-                    const TextField(
+                    TextField(
+                      controller: emailController,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: 'foo@example.com',
                         labelText: 'Email',
                       ),
                       autofillHints: [AutofillHints.email],
                     ),
-                    const TextField(
+                    TextField(
+                      controller: passwordController,
                       keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.next,
                       obscureText: true,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Password',
                       ),
                     ),
@@ -84,39 +151,67 @@ class _SignUpFormState extends State<SignUpForm> {
                         });
                       },
                     ),
-                    const TextField(
+                    TextFormField(
+                      controller: cepController,
+                      validator: (String? value) {
+                        if (value!.isEmpty || value.length < 10) {
+                          return 'CEP inválido';
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.text,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                        hintText: '85850-000',
+                        labelText: 'CEP',
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        CepInputFormatter()
+                      ],
+                      autofillHints: const [AutofillHints.postalCode],
+                    ),
+                    TextField(
+                      controller: stateController,
+                      keyboardType: TextInputType.text,
+                      decoration: const InputDecoration(
+                        hintText: 'Paraná',
+                        labelText: 'State',
+                      ),
+                    ),
+                    TextField(
+                      controller: cityController,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                        hintText: 'Foz do Iguaçu',
+                        labelText: 'City',
+                      ),
+                    ),
+                    TextField(
+                      controller: neighborhoodController,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                        hintText: 'Downtown',
+                        labelText: 'Neighborhood',
+                      ),
+                    ),
+                    TextField(
+                      controller: streetController,
                       keyboardType: TextInputType.streetAddress,
                       textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: '123 4th Ave',
                         labelText: 'Street Address',
                       ),
                       autofillHints: [AutofillHints.streetAddressLine1],
                     ),
-                    const TextField(
-                      keyboardType: TextInputType.number,
+                    TextField(
+                      controller: complementController,
                       textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        hintText: '12345',
-                        labelText: 'Postal Code',
+                      decoration: const InputDecoration(
+                        hintText: 'Apartment 2',
+                        labelText: 'Complement',
                       ),
-                      autofillHints: [AutofillHints.postalCode],
-                    ),
-                    const TextField(
-                      textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        hintText: 'United States',
-                        labelText: 'Country',
-                      ),
-                      autofillHints: [AutofillHints.countryName],
-                    ),
-                    const TextField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        hintText: '1',
-                        labelText: 'Country Code',
-                      ),
-                      autofillHints: [AutofillHints.countryCode],
                     ),
                     Container(
                       height: 50,
@@ -191,7 +286,7 @@ class _FormDatePickerState extends State<_FormDatePicker> {
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             Text(
-              intl.DateFormat.yMd().format(widget.date),
+              intl.DateFormat('d/MM/y').format(widget.date),
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ],
@@ -203,7 +298,7 @@ class _FormDatePickerState extends State<_FormDatePicker> {
               context: context,
               initialDate: widget.date,
               firstDate: DateTime(1900),
-              lastDate: DateTime(2100),
+              lastDate: DateTime.now(),
             );
 
             // Don't change the date if the date picker returns null.
