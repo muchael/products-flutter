@@ -63,12 +63,19 @@ class _SignUpFormState extends State<SignUpForm> {
 
       if (infoCepJSON != null) {
         var cep = infoCepJSON.getOrElse(() => ViaCepInfo());
-        stateController.text = cep.uf!;
-        cityController.text = cep.localidade!;
-        neighborhoodController.text = cep.bairro!;
-        streetController.text = cep.logradouro!;
+        if (cep.uf != null) stateController.text = cep.uf!;
+        if (cep.localidade != null) cityController.text = cep.localidade!;
+        if (cep.bairro != null) neighborhoodController.text = cep.bairro!;
+        if (cep.logradouro != null) streetController.text = cep.logradouro!;
       }
     }
+  }
+
+  String? valueRequired(String? value){
+    if(value == null || value.isEmpty){
+      return "Required field";
+    }
+    return null;
   }
 
   @override
@@ -88,6 +95,7 @@ class _SignUpFormState extends State<SignUpForm> {
                   ...[
                     TextFormField(
                       controller: nameController,
+                      validator: valueRequired,
                       autofocus: true,
                       textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(
@@ -98,6 +106,7 @@ class _SignUpFormState extends State<SignUpForm> {
                     ),
                     TextFormField(
                       controller: lastNameController,
+                      validator: valueRequired,
                       textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(
                         hintText: 'Doe',
@@ -109,7 +118,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       controller: cpfController,
                       validator: (value) {
                         if (!UtilBrasilFields.isCPFValido(value)) {
-                          return 'Insira um CPF válido';
+                          return 'Enter a valid CPF';
                         }
                         return null;
                       },
@@ -124,8 +133,15 @@ class _SignUpFormState extends State<SignUpForm> {
                         CpfInputFormatter(),
                       ],
                     ),
-                    TextField(
+                    TextFormField(
                       controller: emailController,
+                      validator: (value) {
+                        final emailRegExp = RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+                        if (!emailRegExp.hasMatch(value!)) {
+                          return "Enter a valid e-mail";
+                        }
+                        return null;
+                      },
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(
@@ -134,8 +150,9 @@ class _SignUpFormState extends State<SignUpForm> {
                       ),
                       autofillHints: [AutofillHints.email],
                     ),
-                    TextField(
+                    TextFormField(
                       controller: passwordController,
+                      validator: valueRequired,
                       keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.next,
                       obscureText: true,
@@ -171,32 +188,36 @@ class _SignUpFormState extends State<SignUpForm> {
                       ],
                       autofillHints: const [AutofillHints.postalCode],
                     ),
-                    TextField(
+                    TextFormField(
                       controller: stateController,
+                      validator: valueRequired,
                       keyboardType: TextInputType.text,
                       decoration: const InputDecoration(
                         hintText: 'Paraná',
                         labelText: 'State',
                       ),
                     ),
-                    TextField(
+                    TextFormField(
                       controller: cityController,
+                      validator: valueRequired,
                       textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(
                         hintText: 'Foz do Iguaçu',
                         labelText: 'City',
                       ),
                     ),
-                    TextField(
+                    TextFormField(
                       controller: neighborhoodController,
+                      validator: valueRequired,
                       textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(
                         hintText: 'Downtown',
                         labelText: 'Neighborhood',
                       ),
                     ),
-                    TextField(
+                    TextFormField(
                       controller: streetController,
+                      validator: valueRequired,
                       keyboardType: TextInputType.streetAddress,
                       textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(
@@ -205,8 +226,9 @@ class _SignUpFormState extends State<SignUpForm> {
                       ),
                       autofillHints: [AutofillHints.streetAddressLine1],
                     ),
-                    TextField(
+                    TextFormField(
                       controller: complementController,
+                      validator: valueRequired,
                       textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(
                         hintText: 'Apartment 2',
