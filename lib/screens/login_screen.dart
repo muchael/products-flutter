@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:products_flutter/screens/sign_up_form.dart';
 
+import '../app_state.dart';
+
 class Login extends StatefulWidget {
-  const Login({super.key});
+  final AppState state;
+  Login({super.key, required this.state});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<Login> createState() => _LoginState(state);
 }
 
 class _LoginState extends State<Login> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  final AppState state;
 
   final _formKey = GlobalKey<FormState>();
+
+  _LoginState(this.state);
 
   bool valueValidator(String? value){
     if(value != null && value.isEmpty){
@@ -93,16 +99,28 @@ class _LoginState extends State<Login> {
                 decoration: BoxDecoration(
                     color: Colors.blue, borderRadius: BorderRadius.circular(20)),
                 child: TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       // print(nameController.text);
                       // print(difficultyController.text);
                       // print(imageController.text);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Login...'),
-                        ),
-                      );
+                      await state.logIn(emailController.text, passwordController.text).then((response) {
+                        if (state.user != null) {
+                          // context.go('/');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Login...'),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('error...'),
+                            ),
+                          );
+                        }
+                      });
+
                     }
                     // Navigator.push(
                     //     context, MaterialPageRoute(builder: (_) => HomePage()));
