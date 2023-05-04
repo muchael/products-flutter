@@ -23,11 +23,11 @@ class AppState {
   late final StreamController<List<Entry>> _entriesStreamController;
 
   Future<void> logIn(String email, String password) async {
-    final credential = await FirebaseAuth.instance
+    final UserCredential credential = await FirebaseAuth.instance
         .signInWithEmailAndPassword(email: email, password: password);
     if (credential.user != null) {
       user = credential.user!;
-      _listenForEntries();
+      // _listenForEntries();
     } else {
       print('no user!');
     }

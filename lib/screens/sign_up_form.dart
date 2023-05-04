@@ -1,4 +1,5 @@
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:brasil_fields/brasil_fields.dart';
@@ -241,11 +242,26 @@ class _SignUpFormState extends State<SignUpForm> {
                       decoration: BoxDecoration(
                           color: Colors.blue, borderRadius: BorderRadius.circular(20)),
                       child: TextButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             // print(nameController.text);
                             // print(difficultyController.text);
                             // print(imageController.text);
+                            try {
+                              UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                                  email: emailController.text,
+                                  password: passwordController.text
+                              );
+                            } on FirebaseAuthException catch (e) {
+                              if (e.code == 'weak-password') {
+                                print('The password provided is too weak.');
+                              } else if (e.code == 'email-already-in-use') {
+                                print('The account already exists for that email.');
+                              }
+                            } catch (e) {
+                              print(e);
+                            }
+
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('Login...'),
