@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:products_flutter/screens/sign_up_form.dart';
 
@@ -104,22 +105,32 @@ class _LoginState extends State<Login> {
                       // print(nameController.text);
                       // print(difficultyController.text);
                       // print(imageController.text);
-                      await state.logIn(emailController.text, passwordController.text).then((response) {
-                        if (state.user != null) {
-                          // context.go('/');
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Login...'),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('error...'),
-                            ),
-                          );
-                        }
-                      });
+                      try {
+                        await state.logIn(emailController.text, passwordController.text).then((response) {
+                          if (state.user != null) {
+                            // context.go('/');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Login...'),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('error...'),
+                              ),
+                            );
+                          }
+                        });
+                      } on FirebaseAuthException catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(e.message ?? 'error'),
+                          ),
+                        );
+                      } catch (e) {
+                      print(e);
+                      }
 
                     }
                     // Navigator.push(
