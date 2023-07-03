@@ -19,8 +19,6 @@ class _UserFormState extends State<UserForm> {
   final nameController = TextEditingController();
   final lastNameController = TextEditingController();
   final cpfController = TextEditingController();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
   final birthDateController = TextEditingController();
   final cepController = TextEditingController();
   final stateController = TextEditingController();
@@ -43,8 +41,6 @@ class _UserFormState extends State<UserForm> {
     nameController.dispose();
     lastNameController.dispose();
     cpfController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
     birthDateController.dispose();
     cepController.dispose();
     stateController.dispose();
@@ -83,7 +79,7 @@ class _UserFormState extends State<UserForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sign up'),
+        title: const Text('User info'),
       ),
       body: Form(
         key: _formKey,
@@ -133,33 +129,6 @@ class _UserFormState extends State<UserForm> {
                         FilteringTextInputFormatter.digitsOnly,
                         CpfInputFormatter(),
                       ],
-                    ),
-                    TextFormField(
-                      controller: emailController,
-                      validator: (value) {
-                        final emailRegExp = RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
-                        if (!emailRegExp.hasMatch(value!)) {
-                          return "Enter a valid e-mail";
-                        }
-                        return null;
-                      },
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        hintText: 'foo@example.com',
-                        labelText: 'Email',
-                      ),
-                      autofillHints: [AutofillHints.email],
-                    ),
-                    TextFormField(
-                      controller: passwordController,
-                      validator: valueRequired,
-                      keyboardType: TextInputType.text,
-                      textInputAction: TextInputAction.next,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Password',
-                      ),
                     ),
                     _FormDatePicker(
                       date: date,
@@ -247,20 +216,6 @@ class _UserFormState extends State<UserForm> {
                             // print(nameController.text);
                             // print(difficultyController.text);
                             // print(imageController.text);
-                            try {
-                              UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                                  email: emailController.text,
-                                  password: passwordController.text
-                              );
-                            } on FirebaseAuthException catch (e) {
-                              if (e.code == 'weak-password') {
-                                print('The password provided is too weak.');
-                              } else if (e.code == 'email-already-in-use') {
-                                print('The account already exists for that email.');
-                              }
-                            } catch (e) {
-                              print(e);
-                            }
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -272,7 +227,7 @@ class _UserFormState extends State<UserForm> {
                           //     context, MaterialPageRoute(builder: (_) => HomePage()));
                         },
                         child: const Text(
-                          'Sing Up',
+                          'Save',
                           style: TextStyle(color: Colors.white, fontSize: 25),
                         ),
                       ),
